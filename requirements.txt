@@ -1,0 +1,12 @@
+django
+djangorestframework
+django-filter
+django-cors-headers
+celery
+psycopg2-binary
+cohere
+requests
+beautifulsoup4
+pypdf
+python-docx
+requests

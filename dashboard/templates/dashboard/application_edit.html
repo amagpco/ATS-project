@@ -1,0 +1,68 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Edit Application • Resume Analyzer ATS{% endblock %}
+
+{% block page_heading %}Edit Application{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-slate-500 dark:text-slate-400">
+  Update candidate details or upload a newer resume for {{ application.job.title }}.
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-surface p-8 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/60 dark:bg-red-500/10 dark:text-red-200">
+      {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="space-y-2">
+        {{ form.full_name.label_tag }}
+        {{ form.full_name }}
+        {% for error in form.full_name.errors %}
+        <p class="text-xs text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="space-y-2">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+        {% for error in form.email.errors %}
+        <p class="text-xs text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <label class="text-sm font-semibold text-slate-700 dark:text-slate-200">Resume</label>
+      {{ form.resume_file }}
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        Upload a new file to replace the current resume. Leave blank to keep the existing one.
+      </p>
+      {% for error in form.resume_file.errors %}
+      <p class="text-xs text-red-500">{{ error }}</p>
+      {% endfor %}
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-xs text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200">
+      <p><strong>Job:</strong> {{ application.job.title }}</p>
+      <p><strong>Status:</strong> {{ application.get_status_display }}</p>
+    </div>
+
+    <div class="flex items-center justify-end gap-3">
+      <a href="{% url 'dashboard:application_detail' application.id %}" class="btn-primary px-5 py-2 text-sm">
+        Cancel
+      </a>
+      <button type="submit" class="btn-primary px-6 py-2 text-sm">
+        <i class="fa-solid fa-floppy-disk text-xs"></i>
+        Save changes
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

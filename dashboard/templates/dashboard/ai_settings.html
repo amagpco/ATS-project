@@ -1,0 +1,176 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}AI Settings • Resume Analyzer ATS{% endblock %}
+
+{% block page_heading %}AI Preferences{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-slate-500 dark:text-slate-400">
+  Tune the Cohere models, temperatures, and extraction behaviour used when importing jobs or analysing resumes.
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl">
+  <div class="rounded-3xl bg-surface shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+    <div class="dark:border-slate-800">
+      <nav class="flex gap-2 px-6 pt-6" role="tablist">
+        <button
+          type="button"
+          class="tab-trigger inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-colors duration-300 data-[active=true]:bg-brand-500 data-[active=true]:text-white data-[active=true]:shadow-soft data-[active=false]:bg-transparent data-[active=false]:text-slate-500 data-[active=false]:hover:text-brand-600 dark:data-[active=false]:text-slate-300"
+          data-tab-target="job"
+          data-active="true"
+        >
+          <i class="fa-solid fa-briefcase text-xs"></i>
+          Job Import
+        </button>
+        <button
+          type="button"
+          class="tab-trigger inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-colors duration-300 data-[active=true]:bg-brand-500 data-[active=true]:text-white data-[active=true]:shadow-soft data-[active=false]:bg-transparent data-[active=false]:text-slate-500 data-[active=false]:hover:text-brand-600 dark:data-[active=false]:text-slate-300"
+          data-tab-target="resume"
+        >
+          <i class="fa-solid fa-file-lines text-xs"></i>
+          Resume Analysis
+        </button>
+      </nav>
+    </div>
+
+    <form method="post" class="space-y-6 px-6 pb-8 pt-6">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/60 dark:bg-red-500/10 dark:text-red-200">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
+
+      <section data-tab-panel="job" class="tab-panel space-y-6 data-[hidden=true]:hidden">
+        <fieldset class="space-y-4">
+          <legend class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Cohere Model</legend>
+
+          <div class="space-y-2">
+            {{ form.job_analysis_model.label_tag }}
+            {{ form.job_analysis_model }}
+            {% if form.job_analysis_model.help_text %}
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ form.job_analysis_model.help_text }}</p>
+            {% endif %}
+            {% for error in form.job_analysis_model.errors %}
+            <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="space-y-2">
+            {{ form.job_temperature.label_tag }}
+            {{ form.job_temperature }}
+            {% for error in form.job_temperature.errors %}
+            <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="space-y-2">
+            {{ form.job_additional_prompt.label_tag }}
+            {{ form.job_additional_prompt }}
+            {% for error in form.job_additional_prompt.errors %}
+            <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+          </div>
+        </fieldset>
+      </section>
+
+      <section data-tab-panel="resume" class="tab-panel space-y-6 data-[hidden=true]:hidden" data-hidden="true">
+        <fieldset class="space-y-4">
+          <legend class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Cohere Model</legend>
+
+          <div class="space-y-2">
+            {{ form.resume_analysis_model.label_tag }}
+            {{ form.resume_analysis_model }}
+            {% if form.resume_analysis_model.help_text %}
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ form.resume_analysis_model.help_text }}</p>
+            {% endif %}
+            {% for error in form.resume_analysis_model.errors %}
+            <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="space-y-2">
+            {{ form.resume_temperature.label_tag }}
+            {{ form.resume_temperature }}
+            {% for error in form.resume_temperature.errors %}
+            <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="space-y-2">
+            {{ form.resume_additional_prompt.label_tag }}
+            {{ form.resume_additional_prompt }}
+            {% for error in form.resume_additional_prompt.errors %}
+            <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <fieldset class="space-y-4">
+          <legend class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Automation & Extraction</legend>
+
+          <div class="flex items-center gap-3">
+            {{ form.auto_analyze_resumes }}
+            {{ form.auto_analyze_resumes.label_tag }}
+          </div>
+          {% for error in form.auto_analyze_resumes.errors %}
+          <p class="text-xs text-red-500">{{ error }}</p>
+          {% endfor %}
+
+          <div class="flex items-center gap-3">
+            {{ form.enable_pdf_extraction }}
+            {{ form.enable_pdf_extraction.label_tag }}
+          </div>
+          <div class="flex items-center gap-3">
+            {{ form.enable_docx_extraction }}
+            {{ form.enable_docx_extraction.label_tag }}
+          </div>
+          <div class="flex items-center gap-3">
+            {{ form.enable_text_extraction }}
+            {{ form.enable_text_extraction.label_tag }}
+          </div>
+        </fieldset>
+      </section>
+
+      <div class="flex items-center justify-end gap-3">
+        <a href="{% url 'dashboard:home' %}" class="btn-primary px-5 py-2 text-sm">
+          Back to dashboard
+        </a>
+        <button type="submit" class="btn-primary px-6 py-2 text-sm">
+          <i class="fa-solid fa-floppy-disk text-xs"></i>
+          Save preferences
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block body_extra %}
+{{ block.super }}
+<script>
+  (function () {
+    const triggers = document.querySelectorAll(".tab-trigger");
+    const panels = document.querySelectorAll(".tab-panel");
+
+    function activateTab(target) {
+      triggers.forEach((trigger) => {
+        const isTarget = trigger.dataset.tabTarget === target;
+        trigger.dataset.active = isTarget;
+      });
+
+      panels.forEach((panel) => {
+        const isTarget = panel.dataset.tabPanel === target;
+        panel.dataset.hidden = isTarget ? "false" : "true";
+      });
+    }
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener("click", () => activateTab(trigger.dataset.tabTarget));
+    });
+  })();
+</script>
+{% endblock %}
+{% endblock %}
+

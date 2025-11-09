@@ -1,0 +1,134 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}{{ job.title }} • Resume Analyzer ATS{% endblock %}
+
+{% block page_heading %}{{ job.title }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-slate-500 dark:text-slate-400">
+  Created by {{ job.created_by.get_full_name|default:job.created_by.username }} · {{ job.created_at|date:"M j, Y" }}
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2 space-y-6">
+    <div class="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-white">Job Description</h3>
+      <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+        {{ job.description }}
+      </p>
+    </div>
+
+    <div class="rounded-3xl border border-slate-200 bg-surface shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+        <h3 class="text-base font-semibold text-slate-900 dark:text-white">Applications</h3>
+        <span class="rounded-full bg-brand-200 px-3 py-1 text-xs font-medium text-brand-800 dark:bg-brand-500/20 dark:text-brand-200">
+          {{ total_applications }} candidates
+        </span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+          <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-900/40 dark:text-slate-400">
+            <tr>
+              <th class="px-6 py-3 text-left">Candidate</th>
+              <th class="px-6 py-3 text-left">Status</th>
+              <th class="px-6 py-3 text-left">Submitted</th>
+              <th class="px-6 py-3 text-left">Match</th>
+              <th class="px-6 py-3"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 bg-white dark:divide-slate-800 dark:bg-slate-900/60">
+            {% for application in applications %}
+            <tr class="transition-colors duration-200 hover:bg-slate-100/70 dark:hover:bg-slate-800/60">
+              <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">
+                {{ application.full_name }}
+                <p class="text-xs font-normal text-slate-500 dark:text-slate-400">{{ application.email }}</p>
+              </td>
+              <td class="px-6 py-4">
+                <span class="rounded-full bg-brand-200 px-3 py-1 text-xs font-medium text-brand-800 dark:bg-brand-500/20 dark:text-brand-200">
+                  {{ application.get_status_display }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-slate-500 dark:text-slate-400">{{ application.created_at|timesince }} ago</td>
+              <td class="px-6 py-4 text-slate-500 dark:text-slate-400">
+                {% if application.analysis %}
+                <span class="font-semibold text-emerald-500">{{ application.analysis.match_score|floatformat:2 }}</span>
+                {% else %}
+                <span class="text-xs text-slate-400 dark:text-slate-500">Pending</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <a href="{% url 'dashboard:application_detail' application.id %}" class="text-sm font-semibold text-brand-600 hover:text-brand-500 dark:text-brand-200 dark:hover:text-brand-100">
+                  View details
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                No applications yet. Share this job to start receiving candidates.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <aside class="space-y-6">
+    <div class="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-white">Job Snapshot</h3>
+      <dl class="mt-4 space-y-3 text-sm">
+        <div class="flex items-start justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Department</dt>
+          <dd class="font-medium text-slate-900 dark:text-slate-100">{{ job.department|default:"General" }}</dd>
+        </div>
+        <div class="flex items-start justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Total Applications</dt>
+          <dd class="font-medium text-slate-900 dark:text-slate-100">{{ total_applications }}</dd>
+        </div>
+        <div class="flex items-start justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Analyzed</dt>
+          <dd class="font-medium text-slate-900 dark:text-slate-100">
+            {{ analyzed_applications }}
+          </dd>
+        </div>
+        <div class="flex items-start justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Created</dt>
+          <dd class="font-medium text-slate-900 dark:text-slate-100">{{ job.created_at|date:"M j, Y" }}</dd>
+        </div>
+        {% if job.source_url %}
+        <div class="flex items-start justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Source</dt>
+          <dd class="font-medium text-brand-600 dark:text-brand-200">
+            <a href="{{ job.source_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 hover:underline">
+              View posting
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </dd>
+        </div>
+        {% endif %}
+      </dl>
+    </div>
+    <div class="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-white">Actions</h3>
+      <div class="mt-4 space-y-3 text-sm">
+        <a href="{% url 'dashboard:application_upload' job.id %}" class="btn-primary px-4 py-2 text-sm">
+          <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+          Upload resume
+        </a>
+        <a href="{% url 'dashboard:job_edit' job.id %}" class="btn-primary px-4 py-2 text-sm">
+          <i class="fa-solid fa-pen text-xs"></i>
+          Edit job
+        </a>
+        <a href="{% url 'dashboard:job_delete' job.id %}" class="btn-primary px-4 py-2 text-sm">
+          <i class="fa-solid fa-trash text-xs"></i>
+          Delete job
+        </a>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+

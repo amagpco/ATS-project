@@ -1,0 +1,61 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Import Job • Resume Analyzer ATS{% endblock %}
+
+{% block page_heading %}Import Job Position{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-slate-500 dark:text-slate-400">
+  Provide a public job posting URL. We will scrape the page, extract the key details with Cohere,
+  and create a new job entry for your team.
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-surface p-8 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/60 dark:bg-red-500/10 dark:text-red-200">
+      {% for error in form.non_field_errors %}
+      <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="space-y-2">
+      <label for="{{ form.job_url.id_for_label }}" class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+        {{ form.job_url.label }}
+      </label>
+      {{ form.job_url }}
+      {% if form.job_url.help_text %}
+      <p class="text-xs text-slate-500 dark:text-slate-400">{{ form.job_url.help_text }}</p>
+      {% endif %}
+      {% if form.job_url.errors %}
+      <p class="text-xs text-red-500">
+        {% for error in form.job_url.errors %}
+        {{ error }}
+        {% endfor %}
+      </p>
+      {% endif %}
+    </div>
+
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-700 dark:border-amber-800/60 dark:bg-amber-500/10 dark:text-amber-200">
+      <p>
+        Tip: For the best results, use pages that display the job description without requiring authentication.
+        We will ignore navigation elements and only analyse the main content.
+      </p>
+    </div>
+
+    <div class="flex items-center justify-end gap-3">
+      <a href="{% url 'dashboard:job_list' %}" class="btn-primary px-5 py-2 text-sm">
+        Cancel
+      </a>
+      <button type="submit" class="btn-primary px-6 py-2 text-sm">
+        <i class="fa-solid fa-download text-xs"></i>
+        Import job
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

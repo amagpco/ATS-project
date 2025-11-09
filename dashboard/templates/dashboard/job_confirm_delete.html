@@ -1,0 +1,32 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Delete {{ job.title }} • Resume Analyzer ATS{% endblock %}
+
+{% block page_heading %}Delete Job Position{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-slate-500 dark:text-slate-400">
+  This action cannot be undone. Confirm below to remove this job and all associated applications.
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl rounded-3xl border border-red-200 bg-red-50 p-8 shadow-sm transition-colors duration-300 dark:border-red-900/60 dark:bg-red-500/10">
+  <h2 class="text-lg font-semibold text-red-700 dark:text-red-200">Are you sure?</h2>
+  <p class="mt-2 text-sm text-red-600 dark:text-red-200">
+    You're about to delete the job position <strong>{{ job.title }}</strong>.
+    All applications linked to this job will also be removed.
+  </p>
+
+  <form method="post" class="mt-6 flex items-center justify-end gap-3">
+    {% csrf_token %}
+    <a href="{% url 'dashboard:job_detail' job.id %}" class="btn-primary px-5 py-2 text-sm">
+      Cancel
+    </a>
+    <button type="submit" class="btn-primary px-6 py-2 text-sm">
+      <i class="fa-solid fa-trash text-xs"></i>
+      Delete job
+    </button>
+  </form>
+</div>
+{% endblock %}
+

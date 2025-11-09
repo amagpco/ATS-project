@@ -1,0 +1,117 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Dashboard Overview • Resume Analyzer ATS{% endblock %}
+
+{% block page_heading %}Overview{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-slate-500 dark:text-slate-400">
+  A quick snapshot of your hiring pipeline and candidate insights.
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 lg:grid-cols-2">
+  <div class="grid gap-6 md:grid-cols-2">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-soft dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+      <p class="text-sm font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Open Roles</p>
+      <p class="mt-2 text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">{{ metrics.total_jobs }}</p>
+      <p class="mt-2 text-xs text-slate-400 dark:text-slate-500">Keep departments aligned with the latest openings.</p>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-soft dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+      <p class="text-sm font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Applications</p>
+      <p class="mt-2 text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">{{ metrics.total_applications }}</p>
+      <p class="mt-2 text-xs text-slate-400 dark:text-slate-500">Total submissions across all job positions.</p>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+      <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Awaiting Analysis</p>
+      <p class="mt-2 text-3xl font-semibold text-brand-600 dark:text-brand-400">{{ metrics.pending_applications }}</p>
+      <p class="mt-2 text-xs text-slate-400 dark:text-slate-500">Resumes queued for AI evaluation.</p>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+      <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Analyzed</p>
+      <p class="mt-2 text-3xl font-semibold text-emerald-500 dark:text-emerald-300">{{ metrics.analyzed_applications }}</p>
+      <p class="mt-2 text-xs text-slate-400 dark:text-slate-500">Applications with AI insights ready to review.</p>
+    </div>
+  </div>
+  <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex items-center justify-between">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-white">Top Candidates</h3>
+      <a href="{% url 'dashboard:job_list' %}" class="text-sm font-medium text-brand-600 hover:text-brand-500">
+        View all
+      </a>
+    </div>
+    <ul class="mt-4 space-y-4">
+      {% for analysis in metrics.top_candidates %}
+      <li class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+        <div class="space-y-1">
+          <p class="text-sm font-semibold text-slate-900 dark:text-white">
+            {{ analysis.application.full_name }}
+          </p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">{{ analysis.application.job.title }}</p>
+        </div>
+        <span class="rounded-full bg-brand-200 px-3 py-1 text-sm font-semibold text-brand-800 dark:bg-brand-500/20 dark:text-brand-200">{{ analysis.match_score|floatformat:2 }}</span>
+      </li>
+      {% empty %}
+      <li class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-400">
+        No analyses yet — upload resumes to see AI-powered matches.
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<div class="mt-8 grid gap-6 lg:grid-cols-2">
+  <div class="rounded-3xl border border-slate-200 bg-white shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+    <div class="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-white">Latest Job Positions</h3>
+    </div>
+    <ul class="divide-y divide-slate-100 dark:divide-slate-800">
+      {% for job in recent_jobs %}
+      <li class="px-6 py-4">
+        <a href="{% url 'dashboard:job_detail' job.id %}" class="group flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-slate-900 transition-colors duration-200 group-hover:text-brand-500 dark:text-white dark:group-hover:text-brand-200">{{ job.title }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ job.department|default:"General" }}</p>
+          </div>
+          <span class="text-xs text-slate-400 dark:text-slate-500">Created {{ job.created_at|timesince }} ago</span>
+        </a>
+      </li>
+      {% empty %}
+      <li class="px-6 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+        No job positions yet — create one to start gathering applications.
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="rounded-3xl border border-slate-200 bg-white shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+    <div class="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-white">Recent Applications</h3>
+    </div>
+    <ul class="divide-y divide-slate-100 dark:divide-slate-800">
+      {% for application in recent_applications %}
+      <li class="px-6 py-4">
+        <a href="{% url 'dashboard:application_detail' application.id %}" class="group flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-slate-900 transition-colors duration-200 group-hover:text-brand-500 dark:text-white dark:group-hover:text-brand-200">{{ application.full_name }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ application.job.title }}</p>
+          </div>
+          <span class="rounded-full bg-brand-200 px-3 py-1 text-xs font-medium text-brand-800 transition-colors duration-300 dark:bg-brand-500/20 dark:text-brand-200">
+            {{ application.get_status_display }}
+          </span>
+        </a>
+      </li>
+      {% empty %}
+      <li class="px-6 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+        No applications yet — invite candidates to apply.
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<p class="mt-8 text-xs text-slate-400 dark:text-slate-500">
+  Last updated on {{ current_time|date:"M j, Y, P" }}.
+</p>
+{% endblock %}
+

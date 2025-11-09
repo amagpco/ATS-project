@@ -1,0 +1,140 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}{{ application.full_name }} • Resume Analyzer ATS{% endblock %}
+
+{% block page_heading %}{{ application.full_name }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-slate-500 dark:text-slate-400">
+  Applied for {{ application.job.title }} · Submitted {{ application.created_at|date:"M j, Y" }}
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2 space-y-6">
+    <div class="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-white">Candidate Overview</h3>
+      <div class="mt-4 grid gap-6 text-sm md:grid-cols-2">
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Name</p>
+          <p class="text-slate-700 dark:text-slate-200 font-medium">{{ application.full_name }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">{{ application.email }}</p>
+        </div>
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Job Applied</p>
+          <p class="text-slate-700 dark:text-slate-200 font-medium">{{ application.job.title }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Submitted {{ application.created_at|timesince }} ago</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-semibold text-slate-900 dark:text-white">AI Insights</h3>
+        {% if analysis %}
+        <span class="rounded-full bg-brand-200 px-3 py-1 text-xs font-semibold text-brand-800 dark:bg-brand-500/20 dark:text-brand-200">
+          {{ analysis.match_score|floatformat:2 }}
+        </span>
+        {% endif %}
+      </div>
+      {% if analysis %}
+      <div class="mt-4 space-y-4 text-sm leading-relaxed">
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Summary</h4>
+          <div class="mt-2 rounded-2xl border border-slate-200 bg-white/70 p-4 text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200">
+            {{ analysis.summary|linebreaks }}
+          </div>
+        </div>
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Improvements</h4>
+          {% if analysis.improvements.suggestions %}
+          <ul class="mt-2 space-y-2">
+            {% for suggestion in analysis.improvements.suggestions %}
+            <li class="rounded-xl border border-slate-200 bg-white/70 px-4 py-3 text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200">
+              {{ suggestion }}
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="mt-1 text-slate-500 dark:text-slate-400">No suggestions were provided.</p>
+          {% endif %}
+        </div>
+        {% if analysis.improvements.recommended_skills %}
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Recommended Skills</h4>
+          <div class="mt-2 flex flex-wrap gap-2">
+            {% for skill in analysis.improvements.recommended_skills %}
+            <span class="inline-flex items-center rounded-full bg-brand-200/60 px-3 py-1 text-xs font-semibold text-brand-800 dark:bg-brand-500/20 dark:text-brand-200">
+              {{ skill }}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        <p class="text-xs text-slate-400 dark:text-slate-500">
+          Analyzed with {{ analysis.cohere_model|default:"Cohere" }} on {{ analysis.analyzed_at|date:"M j, Y, P" }}.
+        </p>
+      </div>
+      {% else %}
+      <div class="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-400">
+        AI analysis is in progress. Come back once the resume has been processed.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <aside class="space-y-6">
+    <div class="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-white">Application Snapshot</h3>
+      <dl class="mt-4 space-y-3 text-sm">
+        <div class="flex items-start justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Status</dt>
+          <dd class="font-medium text-slate-900 dark:text-slate-100">{{ application.get_status_display }}</dd>
+        </div>
+        <div class="flex items-start justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Match Score</dt>
+          <dd class="font-medium text-slate-900 dark:text-slate-100">
+            {% if analysis %}
+            {{ analysis.match_score|floatformat:2 }}
+            {% else %}
+            <span class="text-xs text-slate-400 dark:text-slate-500">Pending</span>
+            {% endif %}
+          </dd>
+        </div>
+        <div class="flex items-start justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Last updated</dt>
+          <dd class="font-medium text-slate-900 dark:text-slate-100">{{ application.updated_at|date:"M j, Y, P" }}</dd>
+        </div>
+      </dl>
+      <form method="post" action="{% url 'dashboard:application_status' application.id %}" class="mt-4 flex flex-col gap-3">
+        {% csrf_token %}
+        {{ status_form.status }}
+        {% if status_form.status.errors %}
+        <p class="text-xs text-red-500">
+          {% for error in status_form.status.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </p>
+        {% endif %}
+        <button type="submit" class="btn-primary self-start px-5 py-2 text-xs">
+          <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
+          Update status
+        </button>
+      </form>
+    </div>
+
+    <div class="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-white">Actions</h3>
+      <div class="mt-4 space-y-3 text-sm">
+        <a href="{% url 'dashboard:application_edit' application.id %}" class="btn-primary px-4 py-2 text-sm">
+          <i class="fa-solid fa-pen text-xs"></i>
+          Edit application
+        </a>
+        <a href="{% url 'dashboard:application_download' application.id %}" class="btn-primary px-4 py-2 text-sm">
+          <i class="fa-solid fa-download text-xs"></i>
+          Download resume
+        </a>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
