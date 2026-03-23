@@ -29,7 +29,7 @@ class CohereServiceError(Exception):
 
 
 def _get_cohere_client() -> cohere.Client:
-    api_key = "LhlAO6RSLOGBEJsTMI5wcR2YAvT8wkZ93DJ5luEN"
+    api_key = getattr(settings, "COHERE_API_KEY", "")
     if not api_key:
         raise CohereServiceError(
             "Cohere API key is not configured. Set COHERE_API_KEY in settings."

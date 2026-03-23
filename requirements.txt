@@ -3,10 +3,11 @@ djangorestframework
 django-filter
 django-cors-headers
 celery
-psycopg2-binary
+python-dotenv
+mysqlclient
 cohere
 requests
 beautifulsoup4
 pypdf
 python-docx
-requests
+mysqlclient

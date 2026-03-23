@@ -1,6 +1,6 @@
 # Resume Analyzer ATS
 
-Resume Analyzer ATS is a production-ready Django platform that helps HR teams manage job positions, collect candidate applications, and leverage Cohere-powered AI analysis to assess resume fit. The system supports asynchronous resume processing with Celery, Redis, and PostgreSQL, and ships with a modern Tailwind-based dashboard optimized for both light and dark themes.
+Resume Analyzer ATS is a production-ready Django platform that helps HR teams manage job positions, collect candidate applications, and leverage Cohere-powered AI analysis to assess resume fit. The system supports asynchronous resume processing with Celery, Redis, and MySQL, and ships with a modern Tailwind-based dashboard optimized for both light and dark themes.
 
 ## Features
 - **Modular Django architecture** with dedicated apps for users, jobs, applications, AI analysis, and the dashboard UI.
@@ -10,7 +10,7 @@ Resume Analyzer ATS is a production-ready Django platform that helps HR teams ma
 - **AI resume insights**: asynchronous Celery tasks extract resume text, call Cohere for match score, summary, and improvement suggestions, and store results for review.
 - **Dashboard experience**: Tailwind CSS with gold accent theme, responsive layout, dark/light mode, KPI snapshots, filters, and search.
 - **API-ready core**: DRF serializers and services cleanly separate business logic, enabling future REST or GraphQL endpoints.
-- **Dockerized deployment**: Docker Compose stack with Django, Celery worker, Celery beat, Redis, and PostgreSQL.
+- **Dockerized deployment**: Docker Compose stack with Django, Celery worker, Celery beat, Redis, and MySQL.
 
 ## Project Structure
 ```
@@ -32,7 +32,7 @@ resume_analyzer/
 - Python 3.11+
 - Node-less Tailwind usage (CDN) for templates
 - Redis (for Celery broker/result backend)
-- PostgreSQL (default database in Docker stack)
+- MySQL (default database in Docker stack)
 
 For local-only experiments you can run SQLite, but async processing still requires Redis.
 
@@ -56,7 +56,12 @@ For local-only experiments you can run SQLite, but async processing still requir
    ```bash
    set DJANGO_SECRET_KEY=your-secret-key
    set DEBUG=1
-   set DATABASE_URL=postgres://postgres:postgres@localhost:5432/resume_analyzer
+   set DB_ENGINE=django.db.backends.mysql
+   set DB_NAME=resume_analyzer
+   set DB_USER=root
+   set DB_PASSWORD=your-password
+   set DB_HOST=localhost
+   set DB_PORT=3306
    set CELERY_BROKER_URL=redis://localhost:6379/0
    set CELERY_RESULT_BACKEND=redis://localhost:6379/0
    set COHERE_API_KEY=your-cohere-api-key
@@ -100,7 +105,7 @@ Visit `http://127.0.0.1:8000/` for the dashboard and `http://127.0.0.1:8000/admi
    - `web`: Django application
    - `worker`: Celery worker
    - `beat`: Celery beat scheduler
-   - `db`: PostgreSQL 15
+   - `db`: MySQL 8
    - `redis`: Redis broker/result backend
 
 Environment variables in `docker-compose.yml` point to `.env`. Run migrations inside the `web` container if not automated:

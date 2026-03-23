@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-surface p-8 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
+<div class="w-full rounded-3xl border border-slate-200 bg-surface p-8 pt-0 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
   <form method="post" class="space-y-6">
     {% csrf_token %}
     {% if form.non_field_errors %}
@@ -25,25 +25,53 @@
     </div>
     {% endif %}
 
-    {% for field in form.visible_fields %}
-    <div class="space-y-2">
-      <label for="{{ field.id_for_label }}" class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-        {{ field.label }}
-      </label>
-      {{ field }}
-      {% if field.help_text %}
-      <p class="text-xs text-slate-500 dark:text-slate-400">{{ field.help_text }}</p>
-      {% endif %}
-      {% if field.errors %}
-      <p class="text-xs text-red-500">
-        {% for error in field.errors %}{{ error }}{% endfor %}
-      </p>
-      {% endif %}
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="space-y-2">
+        {{ form.title.label_tag }}
+        {{ form.title }}
+        {% if form.title.help_text %}
+        <p class="text-xs text-slate-500 dark:text-slate-400">{{ form.title.help_text }}</p>
+        {% endif %}
+        {% for error in form.title.errors %}
+        <p class="text-xs text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="space-y-2">
+        {{ form.department.label_tag }}
+        {{ form.department }}
+        {% if form.department.help_text %}
+        <p class="text-xs text-slate-500 dark:text-slate-400">{{ form.department.help_text }}</p>
+        {% endif %}
+        {% for error in form.department.errors %}
+        <p class="text-xs text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
     </div>
-    {% endfor %}
+
+    <div class="space-y-2">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+      {% if form.description.help_text %}
+      <p class="text-xs text-slate-500 dark:text-slate-400">{{ form.description.help_text }}</p>
+      {% endif %}
+      {% for error in form.description.errors %}
+      <p class="text-xs text-red-500">{{ error }}</p>
+      {% endfor %}
+    </div>
+
+    <div class="space-y-2">
+      {{ form.source_url.label_tag }}
+      {{ form.source_url }}
+      {% if form.source_url.help_text %}
+      <p class="text-xs text-slate-500 dark:text-slate-400">{{ form.source_url.help_text }}</p>
+      {% endif %}
+      {% for error in form.source_url.errors %}
+      <p class="text-xs text-red-500">{{ error }}</p>
+      {% endfor %}
+    </div>
 
     <div class="flex items-center justify-end gap-3">
-      <a href="{% if is_edit %}{% url 'dashboard:job_detail' job.id %}{% else %}{% url 'dashboard:job_list' %}{% endif %}" class="btn-primary px-5 py-2 text-sm">
+      <a href="{% if is_edit %}{% url 'dashboard:job_detail' job.id %}{% else %}{% url 'dashboard:job_list' %}{% endif %}" class="btn-secondary px-5 py-2 text-sm">
         Cancel
       </a>
       <button type="submit" class="btn-primary px-6 py-2 text-sm">

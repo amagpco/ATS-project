@@ -14,6 +14,9 @@ from pathlib import Path
 from typing import Any
 
 from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -107,12 +110,12 @@ ASGI_APPLICATION = "resume_analyzer.asgi.application"
 
 DATABASES: dict[str, dict[str, Any]] = {
     "default": {
-        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.mysql"),
         "NAME": os.getenv("DB_NAME", "resume_analyzer"),
-        "USER": os.getenv("DB_USER", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "a0007711"),
+        "USER": os.getenv("DB_USER", "root"),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
         "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
+        "PORT": os.getenv("DB_PORT", "3306"),
     }
 }
 
@@ -143,9 +146,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_URL = "users:login"
-LOGIN_REDIRECT_URL = "dashboard:home"
+LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "users:login"
-COHERE_API_KEY = os.getenv("COHERE_API_KEY", "kiP1NCAOjCwyr5CfbBBIKsIdZwvZDq9rZMZXBLML")
 COHERE_DEFAULT_MODEL = os.getenv("COHERE_DEFAULT_MODEL", "command-a-03-2025")
 
 # ---------------------------------------------------------------------------
