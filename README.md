@@ -1,3 +1,5 @@
+![Resume Analyzer ATS Banner](banner.png)
+
 # Resume Analyzer ATS
 
 Resume Analyzer ATS is a production-ready Django platform that helps HR teams manage job positions, collect candidate applications, and leverage Cohere-powered AI analysis to assess resume fit. The system supports asynchronous resume processing with Celery, Redis, and MySQL, and ships with a modern Tailwind-based dashboard optimized for both light and dark themes.
